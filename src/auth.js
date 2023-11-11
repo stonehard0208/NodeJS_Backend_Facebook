@@ -7,7 +7,9 @@ const users = [];
 router.use(bodyParser.json());
 router.use(session({
     secret: 'AAAA',
-    cookie: { secure: true }
+    cookie: { secure: true },
+    resave: false,
+    saveUninitialized: false
 }));
 
 router.post('/login', (req, res) => {
