@@ -1,9 +1,14 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-app.use(bodyParser.json());
-
-const users = [];
+const app = express.Router();
+const users = [
+    {username: 'RDesRoches',
+    headline: 'This is my headline!',
+    email: 'foo@bar.com',
+    zipcode: 12345,
+    phone: '123-456-7890',
+    dob: '128999122000',
+    avatar: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/DWLeebron.jpg/220px-DWLeebron.jpg'}
+];
 
 app.get('/headline/:user?', (req, res) => {
     const username = req.params.user;
@@ -91,3 +96,5 @@ app.put('/phone', (req, res) => {
     user.phone = phone;
     res.send({ username: loggedInUser, phone: phone});
 });
+
+module.exports = app;

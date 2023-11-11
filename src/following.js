@@ -1,8 +1,15 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const users = [];
-app.use(bodyParser.json());
+const app = express.Router();
+const users = [
+    {username: 'RDesRoches',
+    headline: 'This is my headline!',
+    email: 'foo@bar.com',
+    zipcode: 12345,
+    phone: '123-456-7890',
+    dob: '128999122000',
+    avatar: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/DWLeebron.jpg/220px-DWLeebron.jpg'}
+];
+
 
 app.get('/following/:user?', (req, res) => {
     const username = req.params.user;
@@ -28,3 +35,5 @@ app.delete('/following/:user', (req, res) => {
     
     res.send({ username: loggedInUser, following: user.following});
 });
+
+module.exports = app;

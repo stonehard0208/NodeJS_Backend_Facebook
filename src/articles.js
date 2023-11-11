@@ -1,7 +1,5 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-app.use(bodyParser.json());
+const app = express.Router();
 
 let articles = [{ id: 0, author: 'Mack', body: 'Post 1', comments:[] },
     { id: 1, author: 'Jack', body: 'Post 2', comments:[] },
