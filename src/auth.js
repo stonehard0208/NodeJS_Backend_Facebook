@@ -1,25 +1,43 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const bodyParser = require('body-parser');
 const router = express.Router();
 const session = require('express-session');
-const users = [];
+const mongoose = require('mongoose');
+const userSchema = require('./userSchema');
+const profileSchema = require('./profileSchema');
+const User = mongoose.model('user', userSchema);
+const Profile = mongoose.model('profile', profileSchema);
+const md5 = require('md5');
+
 
 router.use(bodyParser.json());
 router.use(session({
-    secret: 'AAAA',
-    cookie: { secure: true },
+    secret: 'secret',
+    cookie: { secure: false, httpOnly: true },
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
 }));
 
-router.post('/login', (req, res) => {
+router.post('/login', async(req, res) => {
     const { username, password } = req.body;
-    if (username && password) {
-        req.session.username = username;
-        req.session.authenticated = true;
+    try {
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            return res.status(401).json({ result: 'User not found'});
+        }
 
+        const isMatch = await bcrypt.compare(password, user.hash);
+        if (!isMatch) {
+            return res.status(401).json({ result: 'Password does not match'});
+        }
+
+        const sessionKey = md5('secret' + new Date().getTime() + user.username);
+        req.session.user = { username: user.username, sessionKey: sessionKey };
         res.json({ username: username, result: 'success'});
-    } else {
+    }
+    catch(err){
         res.status(401).json({ result: 'failure'});
     }
 
@@ -35,24 +53,55 @@ router.put('/logout', (req, res) => {
 });
 
 
-router.post('./register', (req, res) => {
+router.post('/register', async (req, res) => {
     const { username, email, dob, phone, zipcode, password } = req.body;
     if(username && email && dob && phone && zipcode && password){
-        res.json({ resule: 'success', username: username });
+        try{
+            const salt = bcrypt.genSaltSync(saltRounds);
+            const hash = bcrypt.hashSync(password, salt);
+            const newUser = new User({
+                username: username,
+                salt,
+                hash
+            });
+            await newUser.save();
+
+            const newProfile = new Profile({
+                username: username,
+                headline: "Default headline",
+                email: email,
+                dob: dob,
+                phone: phone,
+                zipcode: zipcode,
+                
+            });
+            await newProfile.save();
+            res.json({ result: 'success', username: username });
+        } catch(error){
+            res.status(500).send({ error: error.message });
+        }
+        
     }
     else{
         res.status(401).json({ result: 'failure'});
     }
 });
 
-router.put('/password', (req, res) => {
-    const loggedInUser = req.session.username;
+
+
+
+router.put('/password', async(req, res) => {
+    const loggedInUser = req.session.user.username;
     const { password } = req.body;
-    const user = users.find(user => user.username === loggedInUser);
-    user.password = password;
+    const user = await User.findOne({ username: loggedInUser });
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+    user.salt = salt;
+    user.hash = hash;
+    user.save();
 
     res.send({ username: loggedInUser, result: "success"});
 
 });
 
-module.exports = router;
+module.exports = router ;

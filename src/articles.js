@@ -1,22 +1,27 @@
 const express = require('express');
+const session = require('express-session');
 const app = express.Router();
+const mongoose = require('mongoose');
+const userSchema = require('./userSchema');
+const profileSchema = require('./profileSchema');
+const articleSchema = require('./articleSchema');
+const User = mongoose.model('user', userSchema);
+const Profile = mongoose.model('profile', profileSchema);
+const Article = mongoose.model('article', articleSchema);
 
-let articles = [{ id: 0, author: 'Mack', body: 'Post 1', comments:[] },
-    { id: 1, author: 'Jack', body: 'Post 2', comments:[] },
-    { id: 2, author: 'Zack', body: 'Post 3', comments:[] }];
+app.get('/articles', async(req, res) => {
+    const loggedInUser = req.session.user.username;
+    const articles = await  Article.find({ author: loggedInUser });
+    return res.json({ articles: articles });
+});
 
-
-app.get('/articles/:id?', (req, res) => {
-    const loggedInUser = req.session.username;
-    // if (!loggedInUser) {
-    //     return res.status(401).json({ error: 'You must be logged in to view articles' });
-    // }
-
-
+app.get('/articles/:id?', async(req, res) => {
+    const loggedInUser = req.session.user.username;
+    
     if(req.params.id){
         const id = req.params.id;
         if(!isNaN(id)){
-            const article = articles.find(article => article.id === parseInt(id));
+            const article = await Article.findOne({ pid: id });
 
             if(article){
                 return res.json({ articles:[article]});
@@ -24,7 +29,7 @@ app.get('/articles/:id?', (req, res) => {
                 return res.status(404).send('Not found');
             }
         } else {
-            const article = articles.filter(article => article.author === id);
+            const article = await Article.find({ author: id });
 
             if(article){
                 return res.json({ articles:[article]});
@@ -34,53 +39,20 @@ app.get('/articles/:id?', (req, res) => {
         }
     }
     else{
-        const article = articles.filter(article => article.author === loggedInUser);
+        const article = await Article.find({ author: loggedInUser });
         return res.json({ articles: article });
     }
 });
 
 
-app.put('/articles/:id', (req, res) => {
-    const loggedInUser = req.session.username;
-    const { text, commentId } = req.body;
-    const id = req.params.id;
-
-    const article = articles.find(article => article.id === parseInt(id));
-    if(!article){
-        return res.status(404).send('Article not found');
-    }
-
-    if(article.author !== loggedInUser){
-        return res.status(403).send('Not owned by user');
-    }
-
-    if(typeof commentId !== undefined){
-        if (commentId === -1){
-            const newComment = { id: article.comments.length, author: loggedInUser, text: text };
-            article.comments.push(newComment);
-        } else {
-            const comment = article.comments.find(comment => comment.id === parseInt(commentId));
-            if(!comment){
-                return res.status(404).send('Comment not found');
-            }
-            if(comment.author !== loggedInUser){
-                return res.status(403).send('Not owned by user');
-            }
-            comment.text = text;
-        }
-    } else {
-        article.body = text;
-    }
-
-    return res.json({articles:[article]});
-});
-
-app.post('/article', (req, res) => {
-    const loggedInUser = req.session.username;
+app.post('/article', async (req, res) => {
+    const loggedInUser = req.session.user.username;
     const { text } = req.body;
-    const newArticle = { id: articles.length, author: loggedInUser, body:text, comments: [], date: new Date()};
-    articles.push(newArticle);
-    return res.json({articles:[newArticle]});
+    const articleLength = await Article.countDocuments();
+    const newArticle = { pid: articleLength, author: loggedInUser, body:text, comments: [], date: new Date()};
+    const article = new Article(newArticle);
+    await article.save();
+    res.json({articles:[newArticle]});
 
 
 });
