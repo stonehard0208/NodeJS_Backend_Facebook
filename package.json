@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node jasmine-runner.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +18,8 @@
     "mongoose": "^8.0.0",
     "sinon": "^17.0.1",
     "supertest": "^6.3.3"
+  },
+  "devDependencies": {
+    "jasmine-reporters": "^2.5.2"
   }
 }

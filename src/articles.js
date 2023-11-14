@@ -49,7 +49,7 @@ app.post('/article', async (req, res) => {
     const loggedInUser = req.session.user.username;
     const { text } = req.body;
     const articleLength = await Article.countDocuments();
-    const newArticle = { pid: articleLength, author: loggedInUser, body:text, comments: [], date: new Date()};
+    const newArticle = { pid: articleLength, author: loggedInUser, text: text, comments: [], date: new Date()};
     const article = new Article(newArticle);
     await article.save();
     res.json({articles:[newArticle]});

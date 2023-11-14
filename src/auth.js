@@ -36,6 +36,7 @@ router.post('/login', async(req, res) => {
         const sessionKey = md5('secret' + new Date().getTime() + user.username);
         req.session.user = { username: user.username, sessionKey: sessionKey };
         res.json({ username: username, result: 'success'});
+        console.log(res.getHeaders());
     }
     catch(err){
         res.status(401).json({ result: 'failure'});
