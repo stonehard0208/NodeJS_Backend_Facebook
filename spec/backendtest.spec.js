@@ -3,7 +3,7 @@ require('isomorphic-fetch');
 
 const url = path => `http://localhost:3000${path}`;
 
-describe('Validate Registration and Login functionality', () => {
+describe('Backend tests', () => {
 
     let sessionCookie;
     const newArticle = "New article!";

@@ -6,7 +6,7 @@ const jasmine = new Jasmine();
 jasmine.loadConfigFile('spec/support/jasmine.json'); 
 
 const junitReporter = new JasmineReporters.JUnitXmlReporter({
-    savePath: 'test-results', 
+    savePath: '.', 
     consolidateAll: false 
 });
 
