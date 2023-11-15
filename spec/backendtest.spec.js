@@ -1,5 +1,11 @@
 require('es6-promise').polyfill();
 require('isomorphic-fetch');
+const { JUnitXmlReporter } = require('jasmine-reporters');
+// Setup the reporter
+jasmine.getEnv().addReporter(new JUnitXmlReporter({
+    savePath: './test-results', // Directory to save the reports
+    consolidateAll: true // Consolidate each suite's report into one file, with False it makes 1 report per each spec file
+}));
 
 const url = path => `http://localhost:3000${path}`;
 

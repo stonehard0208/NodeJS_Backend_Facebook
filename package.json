@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node jasmine-runner.js"
+
+    "test": "nyc jasmine"
   },
   "author": "",
   "license": "ISC",
@@ -13,13 +14,14 @@
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "jasmine": "^5.1.0",
     "md5": "^2.3.0",
     "mongoose": "^8.0.0",
     "sinon": "^17.0.1",
     "supertest": "^6.3.3"
   },
   "devDependencies": {
-    "jasmine-reporters": "^2.5.2"
+    "jasmine": "^5.1.0",
+    "jasmine-reporters": "^2.5.2",
+    "nyc": "^15.1.0"
   }
 }
