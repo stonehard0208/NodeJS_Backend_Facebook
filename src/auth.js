@@ -49,7 +49,6 @@ router.put('/logout', (req, res) => {
     req.session.destroy(() => {
         res.sendStatus(200);
     });
-    
 
 });
 
@@ -99,10 +98,19 @@ router.put('/password', async(req, res) => {
     const hash = bcrypt.hashSync(password, salt);
     user.salt = salt;
     user.hash = hash;
-    user.save();
+    await user.save();
 
     res.send({ username: loggedInUser, result: "success"});
 
 });
 
-module.exports = router ;
+function isLoggedIn (req, res, next){
+    if (req.session.user && req.session.user.username) {
+        return next();
+    } else {
+        res.status(401).send({ result: 'Log in first'});
+    }
+}
+
+
+module.exports = { router, isLoggedIn } ;

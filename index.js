@@ -17,13 +17,6 @@ mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: 
 
 const hello = (req, res) => res.send({ hello: 'world' });
 
-function isLoggedIn (req, res, next){
-    if (req.session.user && req.session.user.username) {
-        return next();
-    } else {
-        res.status(401).send({ result: 'Log in first'});
-    }
-}
 
 const app = express();
 app.use(session({
@@ -33,8 +26,8 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.use(auth);
-app.use(isLoggedIn);
+app.use(auth.router);
+app.use(auth.isLoggedIn);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.get('/', hello);

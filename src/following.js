@@ -16,6 +16,9 @@ app.use(session({
 app.get('/following/:user?', async(req, res) => {
     const username = req.params.user;
     const user = await Profile.findOne({ username: username });
+    if (!user) {
+        return res.status(401).json({ result: 'User not found'});
+    }
 
     res.send({ username: username, following: user.following});
 });
@@ -25,7 +28,7 @@ app.put('/following/:user', async(req, res) => {
     const loggedInUser = req.session.user.username;
     const user = await Profile.findOne({ username: loggedInUser });
     user.following.push(username);
-    user.save();
+    await user.save();
     
     res.send({ username: loggedInUser, following: user.following});
 });
@@ -36,7 +39,7 @@ app.delete('/following/:user', async(req, res) => {
     const user = await Profile.findOne({ username: loggedInUser });
     console.log(user.following, username);
     user.following = user.following.filter(user => user !== username);
-    user.save();
+    await user.save();
     
     res.send({ username: loggedInUser, following: user.following});
 });

@@ -31,9 +31,9 @@ app.put('/headline', async(req, res) => {
     console.log("loggedinuser",loggedInUser);
 
     const user = await Profile.findOne({ username: loggedInUser });
-    // if (!user) {
-    //     return res.status(401).json({ result: 'User not found'});
-    // }
+    if (!user) {
+        return res.status(401).json({ result: 'User not found'});
+    }
     console.log({ username: loggedInUser, headline: headline});
     user.headline = headline;
     await user.save();
@@ -100,7 +100,7 @@ app.get('/dob/:user?',async(req, res) => {
     res.send({ username: username, dob: user.dob});
 });
 
-app.get('/avatars/:user?', async(req, res) => {
+app.get('/avatar/:user?', async(req, res) => {
     const username = req.params.user;
     const user = await Profile.findOne({ username: username });
     if (!user) {
