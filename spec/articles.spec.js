@@ -17,7 +17,7 @@ describe('Validate Articles functionality', () => {
     const pid = 11;
     const invalidPid = 100;
     const newArticle = "New article!";
-    const initialID = 7;
+    
 
     beforeAll(done => {
 
@@ -38,6 +38,10 @@ describe('Validate Articles functionality', () => {
     });
 
     it('/GET articles: fetch articles for a specific user', (done) => {
+        const loginUser = {
+            username: "testUser",
+            password: "123"
+        };
         fetch(url(`/articles/${loginUser.username}`), {
             method: 'GET',
             headers: {
@@ -51,7 +55,7 @@ describe('Validate Articles functionality', () => {
         }).then(res => {
             // console.log("res", JSON.stringify(res.articles));
             expect(res.articles).toBeDefined();
-            expect(res.articles[0][0].author).toEqual(loginUser.username);
+            expect(res.articles[0].author).toEqual(loginUser.username);
             done();
         }).catch(err => {
             console.error('Error:', err);
@@ -97,43 +101,43 @@ describe('Validate Articles functionality', () => {
         })
     
 
-        it('/POST articles: upload a new article', (done) => {
-                    fetch(url(`/articles`), {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Cookie': sessionCookie
-                        },
-                        credentials: 'include',
-                    }).then(res => {
-                        return res.json();
-                    }).then(res => {
-                        console.log(res);
-                        initialLength = res.articles[res.articles.length - 1].pid;
-                    })
-                    fetch(url(`/article`), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Cookie': sessionCookie
-                            },
-                            credentials: 'include',
-                            body: JSON.stringify({ text: newArticle })
-                        }) .then(res => {
-                            expect(res.status).toBe(200);
-                            return res.json();
-                        }).then(res => {
-                            expect(res.articles).toBeDefined();
-                            // console.log(res.articles);
-                            // console.log(JSON.stringify(res.articles));
-                            expect(res.articles[0].pid).toEqual(initialLength + 1);
-                            expect(res.articles[0].text).toEqual(newArticle);
-                            done();
-                        }).catch(err => {
-                            console.error('Error:', err);
-                            done(err);
-                        });
-                    })
+    it('/POST articles: upload a new article', (done) => {
+        fetch(url(`/articles/${loginUser.username}`), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': sessionCookie
+            },
+            credentials: 'include',
+        }).then(res => {
+            return res.json();
+        }).then(res => {
+            // console.log(res);
+            initialLength = res.articles.length;
+        })
+        fetch(url(`/article`), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': sessionCookie
+                },
+                credentials: 'include',
+                body: JSON.stringify({ text: newArticle })
+            }) .then(res => {
+                expect(res.status).toBe(200);
+                return res.json();
+            }).then(res => {
+                expect(res.articles).toBeDefined();
+                // console.log(res.articles);
+                // console.log(JSON.stringify(res.articles));
+                expect(res.articles.length).toEqual(initialLength + 1);
+                expect(res.articles[res.articles.length - 1].text).toEqual(newArticle);
+                done();
+            }).catch(err => {
+                console.error('Error:', err);
+                done(err);
+            });
+        })
 
  });
     

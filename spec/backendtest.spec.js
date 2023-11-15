@@ -37,7 +37,10 @@ describe('Backend tests', () => {
     });
 
     it('/POST login: login user', (done) => {
-        let loginUser = {username: 'testUser', password: '123'};
+        const loginUser = {
+            username: "testUser",
+            password: "123"
+        };
         fetch(url('/login'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -53,7 +56,11 @@ describe('Backend tests', () => {
     });
 
     it('/POST articles: upload a new article', (done) => {
-        fetch(url(`/articles`), {
+        const loginUser = {
+            username: "testUser",
+            password: "123"
+        };
+        fetch(url(`/articles/${loginUser.username}`), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,10 +68,11 @@ describe('Backend tests', () => {
             },
             credentials: 'include',
         }).then(res => {
+            // console.log(res);
             return res.json();
         }).then(res => {
-            console.log(res);
-            initialLength = res.articles[res.articles.length - 1].pid;
+            // console.log(res);
+            initialLength = res.articles.length;
         })
         fetch(url(`/article`), {
                 method: 'POST',
@@ -81,8 +89,8 @@ describe('Backend tests', () => {
                 expect(res.articles).toBeDefined();
                 // console.log(res.articles);
                 // console.log(JSON.stringify(res.articles));
-                expect(res.articles[0].pid).toEqual(initialLength + 1);
-                expect(res.articles[0].text).toEqual(newArticle);
+                expect(res.articles.length).toEqual(initialLength + 1);
+                expect(res.articles[res.articles.length - 1].text).toEqual(newArticle);
                 done();
             }).catch(err => {
                 console.error('Error:', err);
@@ -108,7 +116,7 @@ describe('Backend tests', () => {
             }).then(res => {
                 // console.log("res", JSON.stringify(res.articles));
                 expect(res.articles).toBeDefined();
-                expect(res.articles[0][0].author).toEqual(loginUser.username);
+                expect(res.articles[0].author).toEqual(loginUser.username);
                 done();
             }).catch(err => {
                 console.error('Error:', err);

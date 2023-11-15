@@ -11,8 +11,13 @@ const Article = mongoose.model('article', articleSchema);
 
 app.get('/articles/:id?', async (req, res) => {
     const loggedInUser = req.session.user.username;
+    // console.log("id", req.params.id);
+    if(!req.params.id){
+        const articles = await Article.find({ author: loggedInUser });
+        return res.json({ articles: articles });
+    }
 
-    if (req.params.id) {
+    if (!isNaN(req.params.id)) {
         const id = req.params.id;
 
         try {
@@ -24,6 +29,7 @@ app.get('/articles/:id?', async (req, res) => {
 
             return res.json({ articles: [article] });
         } catch (error) {
+            console.log("id", req.params.id);
             return res.status(400).send('Invalid article ID');
         }
     } else {
